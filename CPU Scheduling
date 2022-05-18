@@ -1,0 +1,223 @@
+FCFS
+
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+    cout<<"Prathmesh Pawar"<<endl;
+    cout<<"Roll No : 20124073"<<endl;
+    cout<<"Branch : IT"<<endl;
+    int noOfProcess;
+    cout<<"Enter the number of Processes : ";
+    cin>>noOfProcess;
+    int burstTime[noOfProcess], arrivalTime[noOfProcess], waitingTime[noOfProcess], turnAroundTime[noOfProcess], burstTime1[noOfProcess];
+    float averageWaitingTime=0, averageTurnAroundTime=0;
+    cout<<"Enter the burst time of the processes : "<<endl;
+    for(int pp=0; pp<noOfProcess; pp++){
+        cout<<"Enter the burst time of process "<<pp+1<<" : ";
+        cin>>burstTime[pp];
+        burstTime1[pp]=burstTime[pp];
+    }
+    cout<<"Enter the arrival time of the processes : "<<endl;
+    for(int pp=0; pp<noOfProcess; pp++){
+        cout<<"Enter the arrival time of process "<<pp+1<<" : ";
+        cin>>arrivalTime[pp];
+    }
+    burstTime1[0]=0;
+    cout<<"Process\t\tBurst Time\tArrival Time\tWaiting Time\tTurnaround Time"<<endl;
+    for(int pp=0; pp<noOfProcess; pp++){
+        waitingTime[pp]=0;
+        turnAroundTime[pp]=0;
+        burstTime1[pp+1]=burstTime1[pp]+burstTime[pp];
+        waitingTime[pp]=burstTime1[pp]-arrivalTime[pp];
+        turnAroundTime[pp]=waitingTime[pp]+burstTime[pp];
+        averageWaitingTime+=waitingTime[pp];
+        averageTurnAroundTime+=turnAroundTime[pp];
+        cout<<"  "<<pp+1<<"\t\t    "<<burstTime[pp]<<"\t\t    "<<arrivalTime[pp]<<"\t\t    "<<waitingTime[pp]<<"\t\t    "<<turnAroundTime[pp]<<endl;
+    }
+    averageWaitingTime=(float)averageWaitingTime/(float)noOfProcess;
+    averageTurnAroundTime=(float)averageTurnAroundTime/(float)noOfProcess;
+    cout<<"Average Waiting Time : "<<averageWaitingTime<<endl;
+    cout<<"Average turnaround Time : "<<averageTurnAroundTime<<endl;
+    return 0;
+}
+
+
+ROUND ROBIN : 
+#include<bits/stdc++.h>
+using namespace std;
+int obtainTurnAroundTime(int processes[], int n, int burstTime[], int waitingTime[], int turnAroundTime[]){
+  for(int i=0; i<n; i++)
+    turnAroundTime[i]=burstTime[i]+waitingTime[i];
+  return 0;
+}
+int obtainWaitingTime(int processes[], int count,int burstTime[], int waitingTime[], int quantumTime){
+  int remainingBurstTime[count];
+  for(int iter=0; iter<count; iter++)
+    remainingBurstTime[iter]=burstTime[iter];
+  int time=0;
+  while(1){
+    bool workDone=true;
+    for(int j=0 ; j<count; j++){
+      if(remainingBurstTime[j]>0){
+        workDone=false;
+        if(remainingBurstTime[j]>quantumTime){
+          time+=quantumTime;
+          remainingBurstTime[j]-=quantumTime;
+        }
+        else{
+          time=time+remainingBurstTime[j];
+          waitingTime[j]=time-burstTime[j];
+          remainingBurstTime[j]=0;
+        }
+      }
+    }
+    if(workDone==true)
+      break;
+  }
+  return 0;
+}
+
+int obtainAverageTime(int processes[], int num, int burstTime[], int quantumTime){
+  int waitingTime[num], turnAroundTime[num], waitingTimeSum=0, turnAroundTimeSum=0;
+  obtainWaitingTime(processes, num, burstTime, waitingTime, quantumTime);
+  obtainTurnAroundTime(processes, num, burstTime, waitingTime, turnAroundTime);
+  cout<<"\tPROCESSES\t BURST TIME \t\t WAITING TIME \t\tTURNAROUND TIME"<<endl;
+  for(int q=0; q<num; q++){
+      waitingTimeSum=waitingTimeSum+waitingTime[q];
+      turnAroundTimeSum=turnAroundTimeSum+turnAroundTime[q];
+      cout<<"\t"<<q+1<<"\t\t\t"<<burstTime[q]<<"\t\t\t"<<waitingTime[q]<<"\t\t\t"<<turnAroundTime[q]<<endl;  
+  }
+  cout<<"Average Waiting Time : "<<(float)waitingTimeSum/(float)num<<endl; 
+  cout<<"Average Turnaround Time : "<<(float)turnAroundTimeSum/(float)num<<endl;
+  return 0;
+}
+int main(){
+  cout<<"Prathmesh Pawar"<<endl;
+  cout<<"Roll No : 20124073"<<endl;
+  cout<<"Branch : IT"<<endl;
+  cout<<"Enter hte number of processes : ";
+  int counter;
+  cin>>counter;
+  int processNumber[counter];
+  int burstTime[counter];
+  cout<<"Enter burst time of processes : "<<endl;
+    for(int i=0; i<counter; i++){
+        cout<<"Enter the burst time for process "<<i+1<<" : ";
+        cin>>burstTime[i];
+    }
+   
+  cout<<"Enter Quantum Time  : ";
+  int quantumTime;
+  cin>>quantumTime;
+  obtainAverageTime(processNumber, counter, burstTime, quantumTime);
+  return 0;
+}
+
+
+SJF : 
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+    cout<<"Prathmesh Pawar"<<endl;
+    cout<<"Roll No : 20124073"<<endl;
+    cout<<"Branch : IT"<<endl;
+    int noOfProcess;
+    cout<<"Enter the number of Processes : ";
+    cin>>noOfProcess;
+    int processes[noOfProcess], burstTime[noOfProcess], arrivalTime[noOfProcess], waitingTime[noOfProcess], turnAroundTime[noOfProcess];
+    float averageWaitingTime=0, averageTurnAroundTime=0;
+    cout<<"Enter the process number and burst time of the processes : "<<endl;
+    for(int pp=0; pp<noOfProcess; pp++){
+        cin>>processes[pp];
+        cin>>burstTime[pp];
+    }
+    cout<<"Enter the arrival time of the processes : "<<endl;
+    for(int pp=0; pp<noOfProcess; pp++){
+        cout<<"Enter the arrival time of process "<<pp+1<<" : ";
+        cin>>arrivalTime[pp];
+    }
+    for(int i=0; i<noOfProcess; i++){
+        for(int j=0; j<noOfProcess-i-1; j++){
+            if(burstTime[j]>burstTime[j+1]){
+                swap(burstTime[j], burstTime[j+1]);
+                swap(processes[j], processes[j+1]);
+                swap(arrivalTime[j], arrivalTime[j+1]);
+            }
+        }
+    }
+    cout<<"Process\t\tBurst Time\tArrival Time\tWaiting Time\tTurnaround Time"<<endl;
+    for(int pp=0; pp<noOfProcess; pp++){
+        waitingTime[pp]=0;
+        turnAroundTime[pp]=0;
+        for(int j=0; j<noOfProcess; j++){
+            waitingTime[j]=waitingTime[j]+burstTime[j];
+        }
+        turnAroundTime[pp]=waitingTime[pp]+burstTime[pp];
+        averageTurnAroundTime=averageTurnAroundTime+turnAroundTime[pp];
+        averageWaitingTime=averageWaitingTime+waitingTime[pp];
+        cout<<"  "<<processes[pp]<<"\t\t    "<<burstTime[pp]<<"\t\t    "<<arrivalTime[pp]<<"\t\t    "<<waitingTime[pp]<<"\t\t    "<<turnAroundTime[pp]<<endl;
+    }
+    averageWaitingTime=(float)averageWaitingTime/(float)noOfProcess;
+    averageTurnAroundTime=(float)averageTurnAroundTime/(float)noOfProcess;
+    cout<<"Average Waiting Time : "<<averageWaitingTime<<endl;
+    cout<<"Average turnaround Time : "<<averageTurnAroundTime<<endl;
+    return 0;
+}
+
+
+Priority : 
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+    cout<<"Prathmesh Pawar"<<endl;
+    cout<<"Roll No : 20124073"<<endl;
+    cout<<"Branch : IT"<<endl;
+    int noOfProcess;
+    cout<<"Enter the number of Processes : ";
+    cin>>noOfProcess;
+    int burstTime[noOfProcess], arrivalTime[noOfProcess], waitingTime[noOfProcess], turnAroundTime[noOfProcess], priority[noOfProcess];
+    float averageWaitingTime=0, averageTurnAroundTime=0;
+    cout<<"Enter the burst time of the processes : "<<endl;
+    for(int pp=0; pp<noOfProcess; pp++){
+        cout<<"Enter the burst time of process "<<pp+1<<" : ";
+        cin>>burstTime[pp];
+    }
+    cout<<"Enter the priority of the processes : "<<endl;
+    for(int pp=0; pp<noOfProcess; pp++){
+        cout<<"Enter the priority of process "<<pp+1<<" : ";
+        cin>>priority[pp];
+    }
+    cout<<"Enter the arrival time of the processes : "<<endl;
+    for(int pp=0; pp<noOfProcess; pp++){
+        cout<<"Enter the arrival time of process "<<pp+1<<" : ";
+        cin>>arrivalTime[pp];
+    }
+    for(int i=0; i<noOfProcess; i++){
+        int position=i;
+        for(int j=i+1; j<noOfProcess; j++){
+            if(priority[j]<priority[position]){
+                position=j;
+            }
+        }
+        swap(burstTime[i], burstTime[position]);
+        swap(priority[i], priority[position]);
+        swap(arrivalTime[i], arrivalTime[position]);
+    }
+    cout<<"Process\t\tBurst Time\tArrival Time\tPriority\tWaiting Time\tTurnaround Time"<<endl;
+    for(int pp=0; pp<noOfProcess; pp++){
+        waitingTime[pp]=0;
+        turnAroundTime[pp]=0;
+        for(int j=0; j<pp; j++){
+            waitingTime[pp]=waitingTime[pp]+burstTime[j];
+        }
+        turnAroundTime[pp]=waitingTime[pp]+burstTime[pp];
+        averageTurnAroundTime=averageTurnAroundTime+turnAroundTime[pp];
+        averageWaitingTime=averageWaitingTime+waitingTime[pp];
+        cout<<"  "<<pp+1<<"\t\t    "<<burstTime[pp]<<"\t\t    "<<arrivalTime[pp]<<"\t\t    "<<priority[pp]<<"\t\t    "<<waitingTime[pp]<<"\t\t    "<<turnAroundTime[pp]<<endl;
+    }
+    averageWaitingTime=(float)averageWaitingTime/(float)noOfProcess;
+    averageTurnAroundTime=(float)averageTurnAroundTime/(float)noOfProcess;
+    cout<<"Average Waiting Time : "<<averageWaitingTime<<endl;
+    cout<<"Average turnaround Time : "<<averageTurnAroundTime<<endl;
+    return 0;
+}
