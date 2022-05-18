@@ -1,0 +1,199 @@
+•	Reader-Writer Problem : 
+CODE : 
+#include <pthread.h>
+#include <semaphore.h>
+#include <stdio.h>
+sem_t wrt;
+pthread_mutex_t mutex;
+int cnt = 1;
+int numreader = 0;
+void *writer(void *wno){   
+    sem_wait(&wrt);
+    cnt=cnt*2;
+    printf("Writer %d modified cnt to %d\n",(*((int *)wno)),cnt);
+    sem_post(&wrt);
+}
+void *reader(void *rno){   
+    pthread_mutex_lock(&mutex);
+    numreader++;
+    if(numreader == 1) {
+        sem_wait(&wrt); 
+    }
+    pthread_mutex_unlock(&mutex);
+    printf("Reader %d: read cnt as %d\n",*((int *)rno),cnt);
+    pthread_mutex_lock(&mutex);
+    numreader--;
+    if(numreader==0) {
+        sem_post(&wrt);
+    }
+    pthread_mutex_unlock(&mutex);
+}
+void printName(){
+    printf("NAME : Prathmesh Pawar\n");
+    printf("ROLL NO : 20124073\n");
+    printf("BRANCH : IT\n");
+}
+int main(){ 
+    printName();  
+    pthread_t read[10],write[5];
+    pthread_mutex_init(&mutex, NULL);
+    sem_init(&wrt,0,1);
+    int a[10]={1,2,3,4,5,6,7,8,9,10};
+    for(int i=0; i<10; i++) {
+        pthread_create(&read[i], NULL, (void *)reader, (void *)&a[i]);
+    }
+    for(int i=0; i<5; i++) {
+        pthread_create(&write[i], NULL, (void *)writer, (void *)&a[i]);
+    }
+
+    for(int i=0; i<10; i++) {
+        pthread_join(read[i], NULL);
+    }
+    for(int i=0; i<5; i++) {
+        pthread_join(write[i], NULL);
+    }
+
+    pthread_mutex_destroy(&mutex);
+    sem_destroy(&wrt);
+
+    return 0;
+    
+}
+•	Sleeping Barber Problem : 
+CODE : 
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
+#include <pthread.h>
+#include <semaphore.h>
+#define MAX_CUSTOMERS 25
+sem_t waitingRoom;
+sem_t barberChair;
+sem_t barberPillow;
+sem_t seatBelt;
+int allDone = 0;
+void printName(){
+    printf("NAME : Prathmesh Pawar\n");
+    printf("ROLL NO : 20124073\n");
+    printf("BRANCH : IT\n");
+}
+void *customer(void *number){
+    int num = *(int *)number;
+    printf("Customer %d leaving for barber shop.\n", num);
+    randwait(2);
+    printf("Customer %d arrived at barber shop.\n", num);
+    sem_wait(&waitingRoom);
+    printf("Customer %d entering waiting room.\n", num);
+    sem_wait(&barberChair);
+    sem_post(&waitingRoom);
+    printf("Customer %d waking the barber.\n", num);
+    sem_post(&barberPillow);
+    sem_wait(&seatBelt);
+    sem_post(&barberChair);
+    printf("Customer %d leaving barber shop.\n", num);
+}
+void *barber(void *junk){
+    while(!allDone){
+        printf("The barber is sleeping\n");
+        sem_wait(&barberPillow);
+        if(!allDone){
+            printf("The barber is cutting hair\n");
+            randwait(2);
+            printf("The barber has finished cutting hair.\n");
+            sem_post(&seatBelt);
+        }
+        else{
+            printf("The barber is going home for the day.\n");
+        }
+    }
+}
+void randwait(int secs){
+    int len;
+    len=(int)((1*secs)+1);
+    sleep(len);
+}
+int main(){
+    printName();
+    pthread_t btid;
+    pthread_t tid[MAX_CUSTOMERS];
+    long RandSeed;
+    int i, numCustomers, numChairs;
+    int Number[MAX_CUSTOMERS];
+
+    printf("Enter the number of Customers : "); scanf("%d",&numCustomers) ;
+    printf("Enter the number of Chairs : "); scanf("%d",&numChairs);
+    if(numCustomers>MAX_CUSTOMERS){
+        printf("The maximum number of Customers is %d.\n", MAX_CUSTOMERS);
+        exit(-1);
+    }
+    for(i=0; i<MAX_CUSTOMERS; i++){
+        Number[i] = i;  
+    }
+    sem_init(&waitingRoom, 0, numChairs);
+    sem_init(&barberChair, 0, 1);
+    sem_init(&barberPillow, 0, 0);
+    sem_init(&seatBelt, 0, 0);
+    pthread_create(&btid, NULL, barber, NULL);
+    for(i=0; i<numCustomers; i++){
+        pthread_create(&tid[i], NULL, customer, (void *)&Number[i]);
+        sleep(1);
+    }
+    for(i=0; i<numCustomers; i++){
+        pthread_join(tid[i],NULL);
+        sleep(1);
+    }
+    allDone=1;    
+    sem_post(&barberPillow); 
+    pthread_join(btid,NULL);
+}
+
+
+
+
+Q. Dining Philosopher Problem
+CODE : 
+#include<stdio.h>
+#include<stdlib.h>
+#include<pthread.h>
+#include<semaphore.h>
+#include<unistd.h>
+sem_t chopstick[10];
+void *philosopher(void * n){
+    int ph=*(int *)n;
+    printf("Philosopher %d wants to eat\n",ph);
+    printf("Philosopher %d tries to pick left chopstick\n",ph);
+    sem_wait(&chopstick[ph]);
+    printf("Philosopher %d picks the left chopstick\n",ph);
+    printf("Philosopher %d tries to pick the right chopstick\n",ph);
+    sem_wait(&chopstick[(ph+1)%10]);
+    printf("Philosopher %d picks the right chopstick\n",ph);
+    eat(ph);
+    sleep(rand()%2);
+    printf("Philosopher %d has finished eating\n",ph);
+    sem_post(&chopstick[(ph+1)%10]);
+    printf("Philosopher %d leaves the right chopstick\n",ph);
+    sem_post(&chopstick[ph]);
+    printf("Philosopher %d leaves the left chopstick\n",ph);
+}
+void eat(int ph){
+    printf("Philosopher %d begins to eat\n",ph);
+}
+void printName(){
+    printf("NAME : Prathmesh Pawar\n");
+    printf("ROLL NO : 20124073\n");
+    printf("BRANCH : IT\n");
+}
+int main(){
+    printName();
+    int n[10];
+    pthread_t T[10];
+    for(int i=0; i<10; i++)
+        sem_init(&chopstick[i],0,1);
+    for(int i=0; i<10; i++){
+        n[i]=i;
+        pthread_create(&T[i],NULL,philosopher,(void *)&n[i]);
+    }
+    for(int i=0; i<10; i++)
+        pthread_join(T[i],NULL);
+}
