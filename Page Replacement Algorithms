@@ -1,0 +1,176 @@
+a) FIFO(First In First Out)
+CODE : 
+#include <bits/stdc++.h>
+using namespace std;
+const int N=100005;
+int n;
+int frameSize;
+int pages[N];
+int mark[N]; 
+void fifoPageReplacement(void){
+    queue<int> Q;
+    int pageFaults=0;
+    for(int i=0; i<n; i++){
+        if(mark[pages[i]]==true){
+            cout<<"Page "<<pages[i]<<" caused a Page Hit"<<endl;
+        }
+        else{
+            Q.push(pages[i]);
+            mark[pages[i]]=true;
+            if(Q.size()>frameSize){
+                int p= Q.front();
+                mark[p]=false;
+                Q.pop();
+            }
+            pageFaults++;
+            cout<<"Page "<<pages[i]<<" caused a Page fault"<<endl;
+        }
+    }
+    cout<<endl;
+    cout<<"Total Page Faults : "<<pageFaults<<endl;;
+    cout<<"Total Page Hits : "<<n-pageFaults<<endl;
+    return;
+}
+void printName(){
+    cout<<"Name : Prathmesh Pawar"<<endl;
+    cout<<"Roll No : 20124073"<<endl;
+    cout<<"Branch : IT"<<endl;
+}
+int main(){
+    printName();
+    cout<<"Enter the number of Frames : ";
+    cin>>frameSize;
+    cout<<"Enter the page Reference Stream Length : ";
+    cin>>n;
+    cout<<"Enter the page Reference Stream : ";
+    for(int i=0; i<n; i++)
+        cin>>pages[i];
+    fifoPageReplacement();
+    return 0;
+}
+
+b) LRU(Least Recently Used)
+CODE : #include<bits/stdc++.h>
+using namespace std;
+const int N=100005; 
+int n;
+int frameSize;
+int pages[N];
+void printName(){
+    cout<<"Name : Prathmesh Pawar"<<endl;
+    cout<<"Roll No : 20124073"<<endl;
+    cout<<"Branch : IT"<<endl;
+}
+void lruPageReplacement(){
+    unordered_set<int> s;
+    unordered_map<int, int> indexes;
+    int pageFaults = 0;
+    for(int i=0; i<n; i++){
+        if(s.find(pages[i])!=s.end()){
+            cout<<"Page "<<pages[i]<<" caused a Page Hit"<<endl;
+        }
+        else{
+            if (s.size() < frameSize){
+                s.insert(pages[i]);
+                pageFaults++;
+            }
+            else{
+                int lru = INT_MAX, val;
+                for (auto it:s){
+                    if (indexes[it]<lru){
+                        lru=indexes[it];
+                        val=it;
+                    }
+                }
+                s.erase(val);
+                s.insert(pages[i]);
+                pageFaults++;
+            }
+            cout<<"Page "<<pages[i]<<" caused a page fault"<<endl;
+        }
+        indexes[pages[i]]=i;
+    }
+    cout<<endl;
+    cout<<"Total Page Faults: "<<pageFaults<<endl;
+    cout<<"Total Page Hits : "<<n-pageFaults<<endl;
+}
+int main(){
+    printName();
+    cout<<"Enter the number of Frames : ";
+    cin>>frameSize;
+    cout<<"Enter the page Reference Stream Length : ";
+    cin>>n;
+    cout<<"Enter the page Reference Stream : ";
+    for(int i=0; i<n; i++)
+        cin>>pages[i];
+    lruPageReplacement();
+    return 0;
+}
+c) LFU(Least Frequently Used)
+CODE : 
+#include<bits/stdc++.h>
+using namespace std;
+void printName(){
+    cout<<"Name : Prathmesh Pawar"<<endl;
+    cout<<"Roll No : 20124073"<<endl;
+    cout<<"Branch : IT"<<endl;
+}
+int main(){
+    printName();
+    int f,p;
+    int pages[50],frame[10],hit=0,count[50],time[50];
+    int i,j,page,flag,least,minTime,temp;
+    cout<<"Enter the number of Frames : ";
+    cin>>f;
+    cout<<"Enter the page Reference Stream Length : ";
+    cin>>p;
+    for(i=0;i<f;i++){
+        frame[i]=-1;
+    }
+    for(i=0;i<50;i++){
+        count[i]=0;
+    }
+    cout<<"Enter the page Reference Stream : ";
+    for(i=0;i<p;i++){
+        cin>>pages[i];
+    }
+    cout<<endl;
+    for(i=0;i<p;i++){
+        count[pages[i]]++;
+        time[pages[i]]=i;
+        flag=1;
+        least=frame[0];
+            for(j=0;j<f;j++){
+                if(frame[j]==-1 || frame[j]==pages[i]){
+                    if(frame[j]!=-1){
+                        cout<<"Page Hit     ";
+                        hit++;
+                    }
+                    flag=0;
+                    frame[j]=pages[i];
+                    break;
+                }
+                if(count[least]>count[frame[j]]){
+                    least=frame[j];
+                }
+            }
+            if(flag){
+                minTime=50;
+                for(j=0;j<f;j++){
+                    if(count[frame[j]]==count[least] && time[frame[j]]<minTime){
+                        temp=j;
+                        minTime=time[frame[j]];
+                    }
+                }
+                count[frame[temp]]=0;
+                frame[temp]=pages[i];
+            }
+            for(j=0;j<f;j++){
+                cout<<frame[j]<<" ";
+            }
+            cout<<endl;
+    }
+    cout<<"Total Page hits : "<<hit<<endl;
+    cout<<"Total Page Faults : "<<p-hit;
+    return 0;
+}
