@@ -1,0 +1,121 @@
+#include<bits/stdc++.h>
+using namespace std;
+int *sum2D(int **arr, int rows, int cols){
+    int *sum=new int[cols];
+    for(int i=0; i<cols; i++){
+        sum[i]=0;
+    }
+    for(int i=0; i<rows; i++){
+        for(int j=0; j<cols; j++){
+            sum[j]+=arr[i][j];
+        }
+    }
+    return sum;
+}
+bool compareArray(int *arr1, int *arr2, int n1, int n2){
+    if(n1!=n2){
+        return false;
+    }
+    for(int i=0; i<n1; i++){
+        if(arr1[i]>arr2[i]){
+            return false;
+        }
+    }
+    return true;
+}
+int main(){
+    cout<<"Name : Prathmesh Pawar"<<endl;
+    cout<<"Roll No : 20124073"<<endl;
+    int noOfResources;
+    cout<<"Enter the Total number of resources : ";
+    cin>>noOfResources;
+    int *totalResources=new int[noOfResources];
+    for(int i=0; i<noOfResources; i++){
+        cout<<"Enter the total instances of R"<<i+1<<" : ";
+        cin>>totalResources[i];
+    }
+
+    int noOfProcesses;
+    cout<<"Enter the number of Processes : ";
+    cin>>noOfProcesses;
+
+    cout<<"Enter allocated processes : "<<endl;
+    int **allocated=new int*[noOfProcesses];
+    for(int i=0; i<noOfProcesses; i++){
+        allocated[i]=new int[noOfResources];
+    }
+    for(int i=0; i<noOfProcesses; i++){
+        for(int j=0;j<noOfResources; j++){
+            cout<<"Enter the instances of R"<<j+1<<" allocated to Process P"<<i+1<<" : ";
+            cin>>allocated[i][j];
+        }
+    }
+
+    cout<<"Enter maximum resources : "<<endl;
+    int **max=new int*[noOfProcesses];
+    for(int i=0; i<noOfProcesses; i++){
+        max[i]=new int[noOfResources];
+    }
+    for(int i=0; i<noOfProcesses; i++){
+        for(int j=0; j<noOfResources; j++){
+            cout<<"Enter the max instances of R"<<j+1<<" needed by P"<<i+1<<" : ";
+            cin>>max[i][j];
+        }
+    }
+
+    int *totalAllocated=new int[noOfResources];
+    totalAllocated=sum2D(allocated, noOfProcesses, noOfResources);
+
+    int *available=new int[noOfResources];
+    for(int i=0; i<noOfResources; i++){
+        available[i]=totalResources[i]-totalAllocated[i];
+    }
+
+    int **need=new int*[noOfProcesses];
+    for(int i=0; i<noOfProcesses; i++){
+        need[i]=new int[noOfResources];
+    }
+    for(int i=0; i<noOfProcesses; i++){
+        for(int j=0; j<noOfResources; j++){
+            need[i][j]=max[i][j]-allocated[i][j];
+        }
+    }
+
+    int *safeState=new int[noOfProcesses];
+    int stateIndex=0;
+    bool isTerminated=true;
+    bool compare=true;
+    while(compare){
+        compare=false;
+        for(int i=0; i<noOfProcesses; i++){
+            isTerminated=false;
+            for(int j=0; j<stateIndex; j++){
+                if(safeState[j]==i){
+                    isTerminated=true;
+                }
+            }
+            if(!isTerminated){
+                if(compareArray(need[i], available, noOfResources, noOfResources)){
+                    safeState[stateIndex]=i;
+                    stateIndex++;
+                    for(int j=0; j<noOfResources; j++){
+                        available[j]+=allocated[i][j];
+                    }
+                    compare=true;
+                }
+            }
+        }
+    }
+    if(noOfProcesses==stateIndex){
+        cout<<"System not in Deadlock"<<endl;
+        cout<<"Safe State : ";
+        for(int i=0; i<stateIndex; i++){
+            cout<<"P"<<safeState[i]+1<<"\t";
+        }
+    }
+    else{
+        cout<<"System in Deadlock"<<endl;
+    }
+
+    return 0;
+}
