@@ -1,0 +1,63 @@
+#include<bits/stdc++.h>
+using namespace std;
+class semaphore{
+    int semaphorevalue=3;     //last digit of roll no : 20124073
+    queue<int> blockList, criticalQueue;
+    public : 
+        void downOperation(int s){         
+            semaphorevalue--;
+            if(semaphorevalue<0){
+                blockList.push(s);    
+                cout<<"Process No. "<<s+1<<" transferred to blocklist"<<endl;
+            }
+            else{
+                criticalQueue.push(s);
+                cout<<"Process No. "<<s+1<<" entered critical section successfully"<<endl;
+            }
+            return;
+        }
+        void upOperation(){              
+            semaphorevalue++;
+            if(!criticalQueue.empty()){
+                cout<<"Process No. "<<criticalQueue.front()+1<<" exiting critical section"<<endl;
+                criticalQueue.pop();
+            }
+            if(semaphorevalue<=0){
+                cout<<"Process No. "<<blockList.front()+1<<" has removed from blocked list and waked up"<<endl;
+                blockList.pop();
+            }
+            return;
+        }
+        void blockedProcess(){
+            if(blockList.empty())
+                cout<<"Blocked List is empty"<<endl;
+            else if(blockList.size()>1)
+                cout<<"P"<<blockList.front()+1<<" to P"<<blockList.back()+1<<" are blocked"<<endl;
+            else    
+                cout<<"P"<<blockList.front()+1<<" is blocked"<<endl;
+        }
+        int criticalSize(){
+            return criticalQueue.size();
+        }
+};
+int main(){
+    cout<<"Prathmesh Pawar"<<endl;
+    cout<<"Roll No : 20124073"<<endl;
+    cout<<"Branch : IT"<<endl;
+    int n;
+    cout<<"Enter the number of processes : ";
+    cin>>n;
+    semaphore S;
+    for(int i=0; i<n; i++){
+        S.downOperation(i);
+    }
+    cout<<"-----BLOCKLIST-----"<<endl;
+    S.blockedProcess();
+    int size=S.criticalSize();
+    for(int i=0; i<size; i++){
+        S.upOperation();
+    }
+    cout<<"-----BLOCKLIST-----"<<endl;
+    S.blockedProcess();
+    return 0;
+}
